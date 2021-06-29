@@ -139,21 +139,44 @@ export const Dropdown = ({
         }
     }
 
+    // Handle keys
+    let index = 0;
+    function handleKey($event: React.KeyboardEvent, menuButtons: any) {
+        if ($event.key === 'ArrowDown' || $event.key === 'ArrowUp') {
+            $event.preventDefault();
+            $event.stopPropagation();
+        }
+
+        if ($event.key === 'ArrowDown') {
+            menuButtons.length - 1 > index ?
+                index = index + 1 :
+                index = 0;
+        } else if ($event.key === 'ArrowUp') {
+            index > 0 ?
+                index = index - 1 :
+                index = menuButtons.length - 1;
+        }
+
+        menuButtons[index].focus();
+    }
+
     // toggle menu
     function toggleDisplay() {
+        let menuRef: any;
+
         if (!open) {
             setOpen(true);
             if (!append) {
-                let menuRef = ref.current;
+                menuRef = ref.current;
                 let toggleRef = buttonRef.current;
                 if (toggleRef && menuRef) {
                     createPopper(toggleRef, menuRef, {
                         placement: checkAlign() ? 'bottom-end' : 'bottom-start',
                     });
-                }
+                }                
             } else {
                 setTimeout(() => {
-                    let menuRef: any = ref.current;
+                    menuRef = ref.current;
                     let toggleRef = buttonRef.current;
                     if (toggleRef && menuRef) {
                         createPopper(toggleRef, menuRef, {
@@ -166,8 +189,19 @@ export const Dropdown = ({
 
             }
             document.addEventListener('click', closeMenu);
+
+            setTimeout(() => {
+                let menuButtons = menuRef.querySelectorAll('button');
+                menuButtons[0].focus(); index = 0;
+
+                menuRef.addEventListener('keydown', ($e: React.KeyboardEvent) =>
+                    handleKey($e, menuButtons));
+            });
         } else {
             setOpen(false);
+            menuRef = ref.current;
+
+            menuRef.removeEventListener('keydown', handleKey);
         }
     }
 
@@ -204,7 +238,7 @@ export const Dropdown = ({
                 submenuItems.push(each(el, key));
             });
             return (
-                <li key={index}>
+                <li className="dropdown-item" key={index}>
                     <div className='dropdown' >
                         <button
                             ref={refButtonSubMenu}
@@ -219,7 +253,7 @@ export const Dropdown = ({
                                     });
                                 }
                             }}
-                            onClick={item['onSelect']}>
+                            onKeyPress={($e) => console.log($e)}>
                             {item['icon'] ? <i className={'icon-' + item['icon']}></i> : null}
                             {item['label']}
                         </button>
@@ -280,49 +314,8 @@ export const Dropdown = ({
 
             {append ?
                 null : (function() {
-                    if (header && footer) {
-                        return (
-                            <div className='dropdown__menu dropdown__menu--has-head-foot' ref={ref} >
-                                <ul className='dropdown__menu-header'>
-                                    {headerElements}
-                                </ul>
-                                <ul className='dropdown__menu-body'>
-                                    {dropdownElements}
-                                </ul>
-                                <ul className='dropdown__menu-footer dropdown__menu-footer--has-list '>
-                                    {footerElements}
-                                </ul>
-                            </div>
-                        );
-                    } else if (header) {
-                        return (
-                            <div className='dropdown__menu dropdown__menu--has-head-foot' ref={ref} >
-                                <ul className='dropdown__menu-header'>
-                                    {headerElements}
-                                </ul>
-                                <ul className='dropdown__menu-body'>
-                                    {dropdownElements}
-                                </ul>
-                            </div>
-                        );
-                    } else if (footer) {
-                        return (
-                            <div className='dropdown__menu dropdown__menu--has-head-foot' ref={ref} >
-                                <ul className='dropdown__menu-body'>
-                                    {dropdownElements}
-                                </ul>
-                                <ul className='dropdown__menu-footer dropdown__menu-footer--has-list '>
-                                    {footerElements}
-                                </ul>
-                            </div>
-                        );
-                    } else {
-                        return (
-                            <ul className='dropdown__menu' ref={ref} >
-                                {dropdownElements}
-                            </ul>
-                        );
-                    }
+                    let menu = createAppendMenu();
+                    return menu;
                 })()}
         </div >
     );
@@ -334,7 +327,7 @@ const DropdownItem = ({
     onSelect,
 }: IMenuItem) => {
     return (
-        <li><button onClick={onSelect}><i className={icon ? ('icon-' + icon) : ''}></i>{label}</button></li>
+        <li className="dropdown-item"><button onClick={onSelect}><i className={icon ? ('icon-' + icon) : ''}></i>{label}</button></li>
     );
 
 };
