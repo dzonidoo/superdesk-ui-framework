@@ -17,8 +17,8 @@ export default class ButtonsDoc extends React.Component {
                 <Markup.ReactMarkup>
                     <Markup.ReactMarkupPreview>
                     <div className="docs-page__content-row">
-                        <Button text="default" onClick={()=> false} />
-                        <Button text="primary" type="primary" onClick={()=> false} />
+                        <Button text="default" onClick={()=> false} isLoading={true}/>
+                        <Button text="primary" type="primary" onClick={()=> false} isLoading={true} />
                     </div>
                     <p className="docs-page__paragraph">// Other colour options</p>
                     <div className="docs-page__content-row docs-page__content-row--no-margin">

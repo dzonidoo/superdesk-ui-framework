@@ -1,6 +1,7 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import { Icon } from './Icon';
+import { Spinner } from './Spinner';
 
 interface IButtonBase {
     id?: string;
@@ -20,6 +21,7 @@ interface IPropsButton extends IButtonBase {
     expand?: boolean;
     style?: 'filled' | 'hollow' | 'text-only'; // defaults to 'filled'
     shape?: 'square' | 'round'; // defaults to 'square'
+    isLoading?: boolean;
 }
 
 export class Button extends React.PureComponent<IPropsButton> {
@@ -43,6 +45,7 @@ export class Button extends React.PureComponent<IPropsButton> {
                 onClick={this.props.disabled ? () => false : (event) => this.props.onClick(event)}
                 aria-label={this.props.iconOnly ? this.props.text : ''}
                 data-test-id={this.props['data-test-id']}>
+                {this.props.isLoading ? <Spinner size="mini" /> : null}
                 {this.props.icon ? <Icon name={this.props.icon} /> : null}
                 {this.props.iconOnly ? null : this.props.text}
             </button>
