@@ -3,6 +3,8 @@ import addDays from 'date-fns/addDays';
 import format from 'date-fns/format';
 import {Calendar, LocaleSettings, CalendarProps} from '@superdesk/primereact/calendar';
 import {throttle} from 'lodash';
+import classNames from 'classnames';
+import nextId from "react-id-generator";
 
 export type DatePickerLocaleSettings = Omit<LocaleSettings, 'today' | 'clear'>;
 
@@ -29,6 +31,17 @@ interface IDatePickerBase {
         }}
      */
     locale?: DatePickerLocaleSettings;
+
+    // label props
+    inlineLabel?: boolean;
+    required?: boolean;
+    fullWidth?: boolean;
+    invalid?: boolean;
+    labelHidden?: boolean;
+    tabindex?: number;
+    label?: string;
+    info?: string;
+    error?: string;
 }
 
 interface IDatePicker extends IDatePickerBase {
@@ -53,6 +66,8 @@ interface IState {
     // valid means it can be parsed
     // if a value is invalid on blur, it will be set to an empty string and `props.onChange` called with `null`
     valid: boolean;
+
+    invalid: boolean;
 }
 
 // tries to parse primereact/calendar value format to IDatePicker['value']
@@ -84,6 +99,7 @@ export class DatePicker extends React.PureComponent<IDatePicker, IState> {
         this.state = {
             value: parseToPrimeReactCalendarFormat(this.props.value),
             valid: true,
+            invalid: this.props.invalid ?? false,
         };
 
         this.hidePopupOnScroll = throttle(() => {
@@ -130,9 +146,28 @@ export class DatePicker extends React.PureComponent<IDatePicker, IState> {
                 clear: 'clear',
             };
         }
+        const classes = classNames('sd-input', {
+            'sd-input--inline-label': this.props.inlineLabel,
+            'sd-input--required': this.props.required,
+            'sd-input--disabled': this.props.disabled,
+            'sd-input--full-width': this.props.fullWidth,
+            'sd-input--invalid': this.props.invalid || this.state.invalid,
+        });
+        const labelClasses = classNames('sd-input__label', {
+            'a11y-only': this.props.labelHidden,
+        });
+
+        let htmlId = nextId();
 
         return (
-            <Calendar
+            <div className={classes}>
+                <label className={labelClasses} htmlFor={htmlId} id={htmlId + 'label'}
+                        tabIndex={this.props.tabindex === undefined ? undefined : -1}>
+                    {this.props.label}
+                </label>
+                
+                <Calendar
+                className='sd-input__input'
                 ref={(ref) => {
                     this.instance = ref as unknown as IPrivatePrimeReactCalendarApi;
                 }}
@@ -185,7 +220,16 @@ export class DatePicker extends React.PureComponent<IDatePicker, IState> {
                         this.setState({valid: true, value: parseToPrimeReactCalendarFormat(this.props.value)});
                     }
                 }}
-            />
+                />
+
+                <div className='sd-input__message-box'>
+                    {this.props.info && !this.props.invalid && !this.state.invalid ?
+                        <div className='sd-input__hint'>{this.props.info}</div> : null}
+                    {this.props.invalid || this.state.invalid ?
+                        <div className='sd-input__message'>{this.props.error}</div>
+                        : null}
+                </div>
+            </div>
         );
     }
 }
@@ -211,6 +255,15 @@ export class DatePickerISO extends React.PureComponent<IDatePickerISO> {
                 shortcuts={this.props.shortcuts}
                 dateFormat={this.props.dateFormat}
                 locale={this.props.locale}
+                inlineLabel
+                required={this.props.required}
+                fullWidth={this.props.fullWidth}
+                invalid={this.props.invalid}
+                labelHidden={this.props.labelHidden}
+                tabindex={this.props.tabindex}
+                label={this.props.label}
+                info={this.props.info}
+                error={this.props.error}
             />
         );
     }

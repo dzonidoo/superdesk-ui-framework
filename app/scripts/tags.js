@@ -1,6 +1,7 @@
 /* global _ */
 
 TagInputDirective.$inject = ['$q'];
+
 function TagInputDirective($q) {
     return {
         scope: {
@@ -26,8 +27,8 @@ function TagInputDirective($q) {
             scope.loadTags = (query) => $q((resolve, reject) => {
                 let res = scope.items.filter((el) =>
                     scope.field ?
-                        el[scope.field].toLowerCase().indexOf(query.toLowerCase()) > -1 :
-                        el.toLowerCase().indexOf(query.toLowerCase()) > -1
+                    el[scope.field].toLowerCase().indexOf(query.toLowerCase()) > -1 :
+                    el.toLowerCase().indexOf(query.toLowerCase()) > -1
                 );
 
                 resolve(res);

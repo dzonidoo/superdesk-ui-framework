@@ -1,8 +1,12 @@
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable eqeqeq */
 
-import {reactToAngular1} from './helpers/react-to-angular-1';
-import {Positioner as _Positioner} from '../../app-typescript/components/_Positioner';
+import {
+    reactToAngular1
+} from './helpers/react-to-angular-1';
+import {
+    Positioner as _Positioner
+} from '../../app-typescript/components/_Positioner';
 
 export const Positioner = _Positioner;
 

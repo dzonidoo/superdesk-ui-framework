@@ -19,6 +19,11 @@ class DatePickerExample extends React.PureComponent<{}, {date: Date}> {
                 onChange={(date) => {
                     this.setState({date});
                 }}
+                required
+                tabindex={1}
+                label={'This is Label'}
+                info={'This is info'}
+                error={'This is error'}
             />
         );
     }
