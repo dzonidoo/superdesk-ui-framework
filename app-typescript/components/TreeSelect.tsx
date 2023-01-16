@@ -20,6 +20,7 @@ interface IState<T> {
     buttonValue: any;
     buttonMouseEvent: boolean;
     loading: boolean;
+    buttonTarget: Array<any>
     // provera: boolean;
 }
 
@@ -78,6 +79,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
     private openDropdownRef: React.RefObject<HTMLButtonElement>;
     private htmlId: string = nextId();
     private popperInstance: any;
+    private btn: any;
 
     constructor(props: IProps<T>) {
         super(props);
@@ -93,6 +95,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
             buttonMouseEvent: false,
             openDropdown: false,
             loading: false,
+            buttonTarget: [],
             // provera: false
         };
 
@@ -111,7 +114,18 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
         this.inputRef = React.createRef();
         this.categoryButtonRef = React.createRef();
         this.openDropdownRef = React.createRef();
+        this.btn = React.createRef();
     }
+
+    inputFocus = () => {
+        this.inputRef.current.focus();
+    };
+    listNavigation = () => {
+        this.ref.current.getElementsByTagName('button')[0].focus();
+    };
+    buttonFocus = () => {
+        this.categoryButtonRef.current.focus();
+    };
 
     componentDidMount = () => {
         this.recursion(this.state.options);
@@ -122,36 +136,30 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
             }
         });
 
-        document.addEventListener("keydown", (e: any) => { 
-
-            const inputFocus = () => {
-                this.inputRef.current.focus();
-            };
-            const listNavigation = () => {
-                this.ref.current.getElementsByTagName('button')[0].focus();
-            };
-            const buttonFocus = () => {
-                this.categoryButtonRef.current.focus();
-            };
+        document.addEventListener("keydown", (e: any) => {
+            if (this.state.openDropdown && this.ref.current) {
                 
-            keyboardNavigation(e, this.ref.current, this.categoryButtonRef.current
-                ? buttonFocus : inputFocus);
-            if (e.keyCode === 8) {
-                this.backButton();
-            }
-              
-            
-            // this.inputRef.current.addEventListener('keydown', (e: any) => {
-            //     if (e.keyCode === 40) {
-            //         if (this.categoryButtonRef.current) {
-            //             buttonFocus();
-            //         } else {
-            //             listNavigation();
-            //         }
-            //     }
-            // });
-            
-            
+                keyboardNavigation(
+                    e,
+                    this.ref.current,
+                    this.categoryButtonRef.current? this.buttonFocus : this.inputFocus,
+                );
+
+                // if (e.key === 'Enter') {
+                //     setTimeout(() => {
+                //         console.log(this.state.buttonTarget);
+                //     })
+                // }
+                
+                if (e.keyCode === 8) { // backspace
+                    this.backButton();
+                    setTimeout(() => {
+                        console.log(this.state.buttonTarget);
+                        
+                        this.state.buttonTarget.pop().focus();
+                    })
+                }
+            }  
         });
     }
 
@@ -188,36 +196,20 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                     ],
                 });
             }
-            setTimeout(() => {
-                // if (this.props.kind === 'synchronous') {
-                //     this.ref.current.addEventListener('keydown', (e: any) => {
-                //         keyboardNavigation(e, this.ref.current, this.categoryButtonRef.current
-                //             ? buttonFocus : inputFocus);
-                //         if (e.keyCode === 8) {
-                //             this.backButton();
-                //         }
-                //     });
-                // }
-                this.inputRef.current.addEventListener('keydown', (e: any) => {
-                    if (e.keyCode === 40) {
-                        if (this.categoryButtonRef.current) {
-                            buttonFocus();
-                        } else {
-                            listNavigation();
-                        }
+
+            this.inputRef.current.addEventListener('keydown', (e: any) => {
+                if (e.keyCode === 40) {
+                    if (this.categoryButtonRef.current) {
+                        this.buttonFocus();
+                    } else {
+                        setTimeout(() => {
+                            this.listNavigation();
+                        })
                     }
-                });
-                const inputFocus = () => {
-                    this.inputRef.current.focus();
-                };
-                const listNavigation = () => {
-                    this.ref.current.getElementsByTagName('button')[0].focus();
-                };
-                const buttonFocus = () => {
-                    this.categoryButtonRef.current.focus();
-                };
-                inputFocus();
+                }
             });
+
+            this.inputFocus();
         }
     }
 
@@ -349,17 +341,18 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                 this.setState({openDropdown: false});
             }
         }
+
         this.ref.current.getElementsByTagName('button')[0].focus();
+
     }
 
-    backButton = () => {
+    backButton(): void {
         if (this.state.activeTree.length > 0) {
-            this.setState({
-                options: this.state.activeTree.pop(),
-            });
-            return;
-        } else {
-            return false;
+            this.setState(
+                {
+                    options: this.state.activeTree.pop(),
+                },
+            );
         }
     }
 
@@ -466,7 +459,9 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
         setTimeout(() => {
             this.categoryButtonRef.current.addEventListener('keydown', (e: any) => {
                 if (e.keyCode === 40) {
-                    this.ref.current.getElementsByTagName('button')[0].focus();
+                    setTimeout(() => {
+                        this.ref.current.getElementsByTagName('button')[0].focus();
+                    })
                 }
                 if (e.keyCode === 38) {
                     this.inputRef.current.focus();
@@ -714,8 +709,22 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                                             event.preventDefault();
                                             event.stopPropagation();
                                             this.handleTree(event, option);
+                                            
+                                            
                                         }}>
-                                            <button className="suggestion-item--btn">
+                                            <button className="suggestion-item--btn" ref={this.btn} onKeyDown={(event) => {
+                                                
+                                                if (event.keyCode === 13) {
+
+                                                    this.setState({
+                                                        buttonTarget: [...this.state.buttonTarget, event.target]
+                                                    });
+                                               
+                                                    console.log(this.state.buttonTarget);
+                                          
+                                                
+                                                }
+                                            }}>
                                                 {(this.props.getBorderColor && !this.props.allowMultiple)
                                                 && <div
                                                     className="item-border"
@@ -754,6 +763,8 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
     }
 }
 
+const arr: any[] = [];
+
 const getButtonList = (menuRef: any) => {
     let list = menuRef.querySelectorAll(':scope > li');
     let buttons: any = [];
@@ -763,7 +774,7 @@ const getButtonList = (menuRef: any) => {
             buttons.push(item.getElementsByTagName('button')[0]);
         }
     });
-
+    
     return buttons;
 };
 
@@ -778,6 +789,15 @@ const keyboardNavigation = (e?: any, menuRef?: any, ref?: any) => {
         } else if (e.keyCode === 38) {
             prevElement(buttons, currentIndex, ref);
         }
+        // if (e.keyCode === 13) {
+        //     arr.push(buttons[currentIndex])
+        //     //0console.log(arr); 
+        // }
+
+        // if (e.keyCode === 8) {
+        //      console.log(arr[arr.length - 1]);
+        //          arr[arr.length - 1].focus();
+        // }
     }
 };
 
