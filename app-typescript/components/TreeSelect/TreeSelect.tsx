@@ -11,6 +11,7 @@ import {IInputWrapper} from '../Form/InputWrapper';
 import {SelectPreview} from '../SelectPreview';
 import {TreeSelectPill} from './TreeSelectPill';
 import {getPrefixedItemId, TreeSelectItem} from './TreeSelectItem';
+import ReactDOM from 'react-dom';
 
 interface IState<T> {
     value: Array<T>;
@@ -69,6 +70,12 @@ export interface ITreeNode<T> {
     children?: Array<ITreeNode<T>>;
 }
 
+
+
+
+
+const TREESELECT_CONTAINER_ID = "sd-tree-select-constainer";
+
 export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
     private dropdownRef: React.RefObject<HTMLInputElement>;
     private ref: React.RefObject<HTMLUListElement>;
@@ -97,6 +104,8 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
         };
 
         this.removeClick = this.removeClick.bind(this);
+        this.dropdown = this.dropdown.bind(this);
+        this.addInPlaceholder = this.addInPlaceholder.bind(this);
         this.handleMultiLevel = this.handleMultiLevel.bind(this);
         this.backButton = this.backButton.bind(this);
         this.handleButton = this.handleButton.bind(this);
@@ -122,19 +131,26 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
 
     listNavigation = () => {
         const element: HTMLElement = document.querySelector('.suggestion-item--btn') as HTMLElement;
-        element.focus();
+        //element.focus();
     }
 
     buttonFocus = () => {
-        this.categoryButtonRef.current?.focus();
+        //this.categoryButtonRef.current?.focus();
     }
 
     onMouseDown = (event: MouseEvent) => {
         if (
-            (this.treeSelectRef .current?.contains(event.target as HTMLElement) !== true)
+            (this.dropdownRef.current?.contains(event.target as HTMLElement) !== true)
             && this.state.openDropdown
         ) {
             this.setState({openDropdown: false});
+
+            const container = document.getElementById(TREESELECT_CONTAINER_ID);
+
+            if (container) {
+                ReactDOM.unmountComponentAtNode(container);
+                document.body.removeChild(container);
+            }
         }
     }
 
@@ -143,7 +159,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
             keyboardNavigation(
                 e,
                 this.ref.current,
-                this.categoryButtonRef.current ? this.buttonFocus : this.inputFocus,
+                //this.categoryButtonRef.current ? this.buttonFocus : this.inputFocus,
             );
 
             if (e.key === 'Backspace' && this.state.activeTree.length > 0) {
@@ -154,7 +170,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                 if (lastElement != null) {
                     const className = getPrefixedItemId(lastElement);
                     const element: HTMLElement = document.getElementsByClassName(className)[0] as HTMLElement;
-                    element.focus();
+                    //element.focus();
                 }
             }
         }
@@ -182,7 +198,9 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
         }
 
         if (prevState.openDropdown !== this.state.openDropdown) {
-            this.toggleMenu();
+            setTimeout(() => {
+                this.toggleMenu();
+            })
         }
 
         if (this.props.kind === 'synchronous') {
@@ -218,7 +236,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                     e.stopPropagation();
 
                     if (this.categoryButtonRef.current) {
-                        this.buttonFocus();
+                        //this.buttonFocus();
                     } else {
                         setTimeout(() => {
                             this.listNavigation();
@@ -228,14 +246,66 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
             });
 
             if (this.inputRef.current) {
-                this.inputFocus();
+                //this.inputFocus();
             } else {
                 const element: HTMLElement = document.querySelector('.suggestion-item--btn') as HTMLElement;
-                element.focus();
+                //element.focus();
             }
         } else {
-            this.openDropdownRef.current?.focus();
+            //this.openDropdownRef.current?.focus();
         }
+    }
+
+    addInPlaceholder() {
+        
+        //const container = document.getElementById(TREESELECT_CONTAINER_ID);
+
+        
+
+        // if (!this.state.openDropdown) {
+        //     const el = document.createElement("div");
+        //     el.id = TREESELECT_CONTAINER_ID;
+        //     el.style.position = 'absolute';
+        //     el.style.top = '0';
+        //     el.style.left = '0';
+        //     el.style.width = '1px';
+        //     el.style.height = '1px';
+
+        //     document.body.appendChild(el);
+
+        //     let menu = this.dropdown();
+        //     return ReactDOM.render(menu, container);
+        // } else {
+        //     if (container) {
+        //         ReactDOM.unmountComponentAtNode(container);
+        //         document.body.removeChild(container);
+        //     }
+        // }
+
+
+
+
+
+        setTimeout(() => {
+            if (this.state.openDropdown) {
+                const el = document.createElement("div");
+                el.id = TREESELECT_CONTAINER_ID;
+
+                document.body.appendChild(el);
+                
+                let menu = this.dropdown();
+                
+                const container = document.getElementById(TREESELECT_CONTAINER_ID);
+                return ReactDOM.render(menu, container);
+            } else {
+                const container = document.getElementById(TREESELECT_CONTAINER_ID);
+
+                if (container) {
+                    ReactDOM.unmountComponentAtNode(container);
+                    document.body.removeChild(container);
+                }
+            }
+        })
     }
 
     removeClick(i: number) {
@@ -250,6 +320,8 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
     }
 
     handleMultiLevel(item: ITreeNode<T>) {
+        console.log(item, 'item from handleMultiLevel');
+        
         if (item.children) {
             this.setState({
                 activeTree: [...this.state.activeTree, this.state.options],
@@ -361,11 +433,19 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
     }
 
     handleTree(event: React.MouseEvent<HTMLLIElement, MouseEvent>, option: ITreeNode<T>) {
+        //debugger;
+        console.log(option, ' to je taj -----');
+        
         if (option.children) {
+            
+            console.log('if');
+            
             this.handleButton(option);
             this.handleMultiLevel(option);
 
             if (event.altKey && this.props.allowMultiple) {
+                console.log('drugi if');
+                
                 if (this.props.selectBranchWithChildren) {
                     let filteredItems: Array<T> = [];
 
@@ -404,6 +484,8 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                 }
             }
         } else {
+            console.log('else');
+            
             this.handleValue(event, option);
 
             if (!event.ctrlKey) {
@@ -412,7 +494,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
         }
 
         const element: HTMLElement = document.querySelector('.suggestion-item--btn') as HTMLElement;
-        element.focus();
+        //element.focus();
     }
 
     backButton(): void {
@@ -530,7 +612,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
 
                     setTimeout(() => {
                         const element: HTMLElement = document.querySelector('.suggestion-item--btn') as HTMLElement;
-                        element.focus();
+                        //element.focus();
                     });
                 }
 
@@ -538,7 +620,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    this.inputRef.current?.focus();
+                    //this.inputRef.current?.focus();
                 }
             });
         });
@@ -590,6 +672,135 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
         }
     }
 
+    dropdown() {
+        return (
+            <div
+                className={
+                    "autocomplete autocomplete--multi-select"
+                    + (this.props.width === 'medium' ? ' autocomplete--fixed-width' : '')
+                }
+                style={{zIndex: this.props.zIndex}}
+                ref={this.dropdownRef}
+            >
+                <div className='autocomplete__header'>
+                    <div
+                        className="autocomplete__icon"
+                        onClick={() => {
+                            this.backButton();
+                        }}
+                    >
+                        <Icon name="search" className="search"></Icon>
+                    </div>
+
+                    <div className='autocomplete__filter'>
+                        <input
+                            className="autocomplete__input"
+                            type="text"
+                            placeholder={this.props.searchPlaceholder}
+                            ref={this.inputRef}
+                            value={this.state.searchFieldValue}
+                            onChange={(event) => {
+                                if (this.props.kind === 'synchronous') {
+                                    this.setState({searchFieldValue: event.target.value});
+                                    this.popperInstance?.update();
+                                } else if (this.props.kind === 'asynchronous') {
+                                    if (this.ICancelFn) {
+                                        this.ICancelFn();
+                                    }
+
+                                    this.setState({searchFieldValue: event.target.value, options: []});
+                                    this.popperInstance?.update();
+                                    this.debounceFn();
+                                } else {
+                                    return;
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
+
+                {(this.state.activeTree.length > 0 && this.state.buttonValue != null)
+                    && <div className='autocomplete__category-header'>
+                        <div
+                            className="autocomplete__icon"
+                            onClick={() => {
+                                this.backButton();
+                            }}
+                        >
+                            <Icon name="arrow-left" className="arrow-left"></Icon>
+                        </div>
+
+                        <div className='autocomplete__filter'>
+                            <button className='autocomplete__category-title'>
+                                {this.props.optionTemplate
+                                    ? this.props.optionTemplate(this.state.buttonValue.value)
+                                    : this.props.getLabel(this.state.buttonValue.value)
+                                }
+                            </button>
+
+                            {this.props.selectBranchWithChildren
+                                && this.branchButton(this.state.buttonValue)
+                            }
+                        </div>
+                    </div>
+                }
+
+                {this.state.loading
+                    ? <ul className="suggestion-list--loader"><Loader overlay={true}></Loader></ul>
+                    : this.state.searchFieldValue === ''
+                        ? this.props.getOptions
+                            ? <ul
+                                className="suggestion-list suggestion-list--multi-select"
+                                ref={this.ref}
+                            >
+                                {this.state.options.map((option, i: React.Key | undefined) => {
+                                    let selectedItem = this.state.value.some((obj) =>
+                                        this.props.getId(obj) === this.props.getId(option.value),
+                                    );
+
+                                    console.log(option, 'option');
+                                    
+
+                                    return (
+                                        <TreeSelectItem
+                                            key={i}
+                                            option={option}
+                                            handleTree={this.handleTree}
+                                            selectedItem={selectedItem}
+                                            allowMultiple={this.props.allowMultiple}
+                                            getBorderColor={this.props.getBorderColor}
+                                            getBackgroundColor={this.props.getBackgroundColor}
+                                            getId={this.props.getId}
+                                            optionTemplate={this.props.optionTemplate}
+                                            getLabel={this.props.getLabel}
+                                            onKeyDown={() => {
+                                                this.setState({
+                                                buttonTarget: [
+                                                    ...this.state.buttonTarget,
+                                                    this.props.getId(option.value),
+                                                ],
+                                            })}
+                                        }
+                                        />
+                                    );
+                                })}
+                            </ul>
+                            : null
+                        : <ul
+                            className="suggestion-list suggestion-list--multi-select"
+                            ref={this.ref}
+                        >
+                            {this.filteredItem(
+                                this.props.singleLevelSearch
+                                    ? this.state.options
+                                    : this.state.filterArr,
+                            )}
+                        </ul>
+                }
+            </div>
+        )
+    } 
+
     render() {
         if (this.props.preview) {
             return (
@@ -636,10 +847,12 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                                     className={`tags-input__add-button ${this.props.disabled ? 'tags-input__add-button--disabled' : ''}`}
                                     onClick={(e) => {
                                         e.stopPropagation();
-
+                                        
                                         if (!this.props.disabled) {
                                             this.setState({openDropdown: !this.state.openDropdown});
+                                            this.addInPlaceholder();
                                         }
+                                        
                                     }}
                                 >
                                     <i className="icon-plus-large"></i>
@@ -770,8 +983,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                             })}
                         </div>
                     }
-
-                    {this.state.openDropdown
+                    {/* {this.state.openDropdown
                         && <div
                             className={
                                 "autocomplete autocomplete--multi-select"
@@ -891,7 +1103,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
                                     </ul>
                             }
                         </div>
-                    }
+                    } */}
                 </div>
             </InputWrapper>
         );
