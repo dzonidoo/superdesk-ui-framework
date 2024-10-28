@@ -48,9 +48,6 @@ export class CustomHeaderToggleBox extends React.PureComponent<IPropsCustomHeade
         const classes = classNames('sd-shadow--z1 new-collapse-box', {
             'new-collapse-box--open': this.state.isOpen,
         });
-        const childrenClasses = classNames('new-collapse-box__content-inner p-2 pt-0-5', {
-            'toggle-box__content--animation': this.state.isAnimating,
-        });
         const { isOpen } = this.state;
 
         return (
@@ -76,7 +73,13 @@ export class CustomHeaderToggleBox extends React.PureComponent<IPropsCustomHeade
                 </div>
 
                 <div className='new-collapse-box__content'>
-                    <div id={this.htmlId} aria-hidden={!isOpen} className={childrenClasses}>
+                    <div
+                        id={this.htmlId}
+                        aria-hidden={!isOpen}
+                        className={classNames('new-collapse-box__content-inner p-2 pt-0-5', {
+                            'toggle-box__content--animation': this.state.isAnimating,
+                        })}
+                    >
                         {this.props.children}
                     </div>
                 </div>
