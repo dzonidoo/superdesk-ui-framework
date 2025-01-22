@@ -12,7 +12,7 @@ interface IProps {
         hidden?: boolean;
     };
     dateFormat: string;
-    onChange: (value: string | null) => void;
+    onChange: (value: Date | null) => void;
     preview?: boolean;
     fullWidth?: boolean;
     allowSeconds?: boolean;
@@ -31,10 +31,10 @@ export class DateTimePicker extends React.PureComponent<IProps> {
         origDate.setHours(hours);
         origDate.setMinutes(minutes);
 
-        this.props.onChange(origDate.toISOString());
+        this.props.onChange(origDate);
     }
 
-    handleDateChange = (date?: string) => {
+    handleDateChange = (date: Date | null) => {
         if (date == null) {
             this.props.onChange(null);
 
@@ -47,7 +47,7 @@ export class DateTimePicker extends React.PureComponent<IProps> {
         selectedDate.setHours(origDate.getHours());
         selectedDate.setMinutes(origDate.getMinutes());
 
-        this.props.onChange(selectedDate.toISOString());
+        this.props.onChange(selectedDate);
     }
 
     prepareFormat(unitOfTime: number) {
@@ -55,9 +55,9 @@ export class DateTimePicker extends React.PureComponent<IProps> {
     }
 
     render() {
-        const convertedValue = this.props.value ? new Date(this.props.value) : null;
-        const convertedTimeValue = convertedValue
-            ? `${this.prepareFormat(convertedValue.getHours())}:${this.prepareFormat(convertedValue.getMinutes())}`
+        const {value} = this.props;
+        const convertedTimeValue = value
+            ? `${this.prepareFormat(value.getHours())}:${this.prepareFormat(value.getMinutes())}`
             : '';
 
         return (
@@ -68,9 +68,9 @@ export class DateTimePicker extends React.PureComponent<IProps> {
                         preview={this.props.preview}
                         required={this.props.required}
                         hideClearButton={true}
-                        value={convertedValue}
+                        value={value}
                         onChange={(val) => {
-                            this.handleDateChange(val?.toString());
+                            this.handleDateChange(val);
                         }}
                         dateFormat={this.props.dateFormat}
                         label={this.props.label.text}
