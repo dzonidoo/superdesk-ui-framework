@@ -26,10 +26,9 @@ const MIN_WIDTH = 348;
 export class DateTimePicker extends React.PureComponent<IProps> {
     handleTimeChange = (time: string) => {
         const [hours, minutes] = time.split(':').map((x) => defaultTo(parseInt(x, 10), 0)); // handle NaN value
-        const origDate = this.props.value ?? new Date();
+        const origDate = this.props.value ? new Date(this.props.value) : new Date();
 
-        origDate.setHours(hours);
-        origDate.setMinutes(minutes);
+        origDate.setHours(hours, minutes);
 
         this.props.onChange(origDate);
     }
@@ -41,11 +40,10 @@ export class DateTimePicker extends React.PureComponent<IProps> {
             return;
         }
 
-        const selectedDate = new Date(date);
         const origDate = this.props.value ?? new Date();
+        const selectedDate = new Date(date);
 
-        selectedDate.setHours(origDate.getHours());
-        selectedDate.setMinutes(origDate.getMinutes());
+        selectedDate.setHours(origDate.getHours(), origDate.getMinutes());
 
         this.props.onChange(selectedDate);
     }
@@ -55,9 +53,8 @@ export class DateTimePicker extends React.PureComponent<IProps> {
     }
 
     render() {
-        const {value} = this.props;
-        const convertedTimeValue = value
-            ? `${this.prepareFormat(value.getHours())}:${this.prepareFormat(value.getMinutes())}`
+        const convertedTimeValue = this.props.value != null
+            ? `${this.prepareFormat(this.props.value.getHours())}:${this.prepareFormat(this.props.value.getMinutes())}`
             : '';
 
         return (
@@ -68,7 +65,7 @@ export class DateTimePicker extends React.PureComponent<IProps> {
                         preview={this.props.preview}
                         required={this.props.required}
                         hideClearButton={true}
-                        value={value}
+                        value={this.props.value}
                         onChange={(val) => {
                             this.handleDateChange(val);
                         }}
