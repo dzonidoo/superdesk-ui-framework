@@ -170,7 +170,7 @@ let options2 = [
 ]
 
 let fetchedArr = [];
-fetch('https://nominatim.openstreetmap.org/search/berlin?format=json&addressdetails=1&limit=20').then(response => response.json()).then(data => fetchedArr = data);
+fetch('https://nominatim.openstreetmap.org/search.php?q=berlin&exclude_place_ids=134060781&format=jsonv2').then(response => response.json()).then(data => fetchedArr = data);
 
 type ICancelFn = () => void;
 
