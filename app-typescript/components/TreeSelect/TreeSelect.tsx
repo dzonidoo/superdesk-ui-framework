@@ -99,6 +99,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
     /*
     * This variable is used to distinguish changes coming from outside (from props.value)
     * from those made by the user through interaction with the component.
+    * It prevents triggering `onChange` when `props.value` updates externally.
     */
     private changesFromOutside: boolean;
 

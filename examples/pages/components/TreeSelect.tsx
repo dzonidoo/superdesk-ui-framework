@@ -169,8 +169,24 @@ let options2 = [
     },
 ]
 
-let fetchedArr = [];
-fetch('https://nominatim.openstreetmap.org/search.php?q=berlin&exclude_place_ids=134060781&format=jsonv2').then(response => response.json()).then(data => fetchedArr = data);
+let fetchedArr = [
+    {
+        "place_id": 134131805,
+        "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+        "osm_type": "relation",
+        "osm_id": 62422,
+        "lat": "52.510885",
+        "lon": "13.3989367",
+        "category": "boundary",
+        "type": "administrative",
+        "place_rank": 7,
+        "importance": 0.840425236063765,
+        "addresstype": "city",
+        "name": "Berlin",
+        "display_name": "Berlin, Pankow, Germany",
+        "boundingbox": ["52.3382448","52.6755087","13.0883450","13.7611609"],
+    }
+];
 
 type ICancelFn = () => void;
 
