@@ -44,6 +44,11 @@ export class Tooltip extends React.PureComponent<IProps> {
                 placement: placement,
             })[0];
 
+            if (this.instance == null) {
+                // prevent crashing in unit tests
+                return;
+            }
+
             if (content != null) {
                 this.instance.setContent(content);
             } else {
