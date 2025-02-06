@@ -106,7 +106,8 @@
     "primeicons": "2.0.0",
     "react-beautiful-dnd": "^13.0.0",
     "react-id-generator": "^3.0.0",
-    "react-scrollspy": "^3.4.3"
+    "react-scrollspy": "^3.4.3",
+    "tippy.js": "^6.3.7"
   },
   "peerDependencies": {
     "moment": "*"
