@@ -225,7 +225,7 @@ export class TreeSelect<T> extends React.Component<IProps<T>, IState<T>> {
             } else {
                 this.props.onChange(this.state.value);
             }
-        } else if (!isEqual(prevProps.value, this.props.value)) {
+        } else if (!isEqual(prevProps.value, this.props.value) && !isEqual(this.props.value, this.state.value)) {
             this.changesFromOutside = true;
             this.setState({
                 value: this.props.value ?? [],
