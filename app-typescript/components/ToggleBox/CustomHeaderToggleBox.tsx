@@ -97,7 +97,11 @@ export class CustomHeaderToggleBox extends React.PureComponent<IPropsCustomHeade
                             'toggle-box__content--animation': this.state.isAnimating,
                         })}
                     >
-                        {this.state.isOpen || this.state.wasOpened ? this.props.children : null}
+                        {
+                            this.state.isOpen || this.state.wasOpened || this.props.alwaysRenderChildren === true
+                                ? this.props.children
+                                : null
+                        }
                     </div>
                 </div>
             </div>
