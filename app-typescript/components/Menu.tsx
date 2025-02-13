@@ -58,7 +58,7 @@ interface IMenuBranch {
 interface IProps {
     items: Array<IMenuItem>;
     children: (toggle: (event: SyntheticEvent) => void) => JSX.Element;
-    'data-test-id'?: string; 
+    'data-test-id'?: string;
 }
 
 function isSeparator(item: IMenuItem): item is ISeparator {

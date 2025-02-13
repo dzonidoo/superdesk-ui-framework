@@ -26,7 +26,7 @@ interface IPropsPanel {
         | {custom: React.CSSProperties['width']};
     background?: 'transparent' | 'light' | 'grey'; // defaults to light (white)
     open?: boolean;
-    ['data-test-id']?: string
+    ['data-test-id']?: string;
 }
 
 export default class Panel extends React.PureComponent<IPropsPanel> {
